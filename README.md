@@ -207,7 +207,7 @@ router.get('/:id', (req, res) =>{
 Uno degli utilizzi che si può fare con express utilizzando il metodo **POST**,
 è l'aggiunta di dati sensibili. Si può utilizzare un richiesta al body nel file **user.js** per pescare i dati sensibili che arrivano dalla richiesta e aggiungerli all'oggetto JSON, in questo caso è `users`, utilizzando il metodo `push()` di javascript.
 
-> [!INFO]
+> INFO
 >
 > per usare un identificatore univoco possiamo utilizzare uuid che è utilizzato per generare identificatori che sono unici. [Documentazione UUID](https://www.npmjs.com/package/uuid). Creare una constante e importare la funzionalità di uuid all'interno della richiesta post, `const id = uuidv4()` e associarlo ai dati che arrivano dalla richiesta tramite lo spread operator `const userWithID = { ...reqBody, id:id }`.
 
@@ -279,7 +279,7 @@ router.patch("/:id", (req, res) => {
 });
 ```
 
->### [!I controller]
+>### I controller
 >
 >Per ottimizzare il codice viene creata una cartella **controller**, al suo interno vengono creati dei file che indicizzano le operazioni da fare nelle varie rout implementandole a delle constanti da esporto per poi importarli nel file all'interno di **routes** che gli appartiene. **_Esempio nel codice._**
 
