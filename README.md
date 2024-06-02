@@ -279,8 +279,302 @@ router.patch("/:id", (req, res) => {
 });
 ```
 
->### I controller
+> ### I controller
 >
->Per ottimizzare il codice viene creata una cartella **controller**, al suo interno vengono creati dei file che indicizzano le operazioni da fare nelle varie rout implementandole a delle constanti da esporto per poi importarli nel file all'interno di **routes** che gli appartiene. **_Esempio nel codice._**
+> Per ottimizzare il codice viene creata una cartella **controller**, al suo interno vengono creati dei file che indicizzano le operazioni da fare nelle varie rout implementandole a delle constanti da esporto per poi importarli nel file all'interno di **routes** che gli appartiene. **_Esempio nel codice._**
 
+# MongoDB
 
+Per installare mongoDB nell'ultima versione, bisogna avere il supporto nel processore di AVX .
+La versione compatibile senza il supporto AVX è prima la 5.0, quindi mongoDB 4.4
+
+> **ATTENZIONE**
+>
+> Prima di procedere assicurarsi di avere il supporto _AVX_ nel processore, tuttavia si può procedere senza il supporto _AVX_ installando mongo 4.4 , **quindi cambiare la versione data dalla 7.0.11 alla versione 4.4 nella documentazione e negli script.**
+
+## windows
+
+1. Installazione di MongoDB
+
+   - Scaricare l'installer di MongoDB sul sito ufficiale di [MongoDB](https://www.mongodb.com/try/download/community)
+
+   - Accetta i termini e condizioni.
+   - Seleziona la configurazione completa (Complete).
+   - Spunta l'opzione "Install MongoDB as a Service" se vuoi che MongoDB venga eseguito come un servizio di Windows.
+   - Prosegui con l'installazione fino al completamento.
+   - Trova la directory di installazione di MongoDB (tipicamente **_C:\Program Files\MongoDB\Server\<version>\bin_**).
+
+   > Creare la cartella mongo-data per proseguire su **_linux_** e **_macOS_**
+   >
+   > ```bash
+   >   mkdir -p ~/mongo-data
+   > ```
+   >
+   > Per proseguire su **_windows_**
+   >
+   > ```bash
+   >  mkdir C:\Users\YourUsername\mongo-data
+   > ```
+
+2. Creazione di una cartella per i dati del database
+
+   - Aprire il prompt dei comandi o powerShell
+   - Creare una cartella per i dati del database MongoDB
+
+   ```bash
+   mkdir C:\data\db
+   ```
+
+3. Dopo l'installazione, assicurarsi di avere la directory di MongoDB al **_PATH di sistema_** per poter eseguire i comandi di MongoDB da qualsiasi posizione nel prompt dei comandi.
+
+   - Premi Win + X e seleziona "Sistema".
+   - Clicca su "Impostazioni avanzate di sistema".
+   - Nella finestra di dialogo "Proprietà del sistema", clicca su "Variabili d'ambiente".
+   - Nella sezione "Variabili di sistema", trova e seleziona la variabile Path, quindi clicca su "Modifica".
+   - Clicca su "Nuovo" e incolla il percorso della directory bin di MongoDB.
+   - Clicca su "OK" per chiudere tutte le finestre di dialogo.
+
+## Linux
+
+1. Aggiungere la repository di MOngoDB all lista di repository usando il comando
+
+   ```bash
+   echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/7.0.11 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.11.list
+   ```
+
+2. Importare la chiave del repository di MongoDB
+
+   ```bash
+   wget -qO - https://www.mongodb.org/static/pgp/server-7.0.11.asc | sudo apt-key add -
+   ```
+
+3. Aggiornare l'elenco dei pachetti e installazione di MongoDB
+
+   ```bash
+    sudo apt.get update
+    sudo apt-get install -y mongodb-org
+   ```
+
+## Mac
+
+1. Installare MongoDB utilizzzando Homebrew con il comando
+
+   ```bash
+   brew tap mongodb/brew
+   brew install mongodb-community@7.0.11
+   ```
+
+## Docker
+
+Il comando fornito scarica l'immagine MongoDB ultima versione da Docker Hub se non è già presente localmente.
+Crea un container chiamato "my-mongodb".
+Mappa la porta 27017 del container alla porta 27017 del tuo host.
+Monta la directory ~/mongo-data sulla directory /data/db del container per persistere i dati.
+
+### Linux e MacOS
+
+```bash
+docker run -d -p 27017:27017 --name my-mongodb -v ~/mongo-data:/data/db mongo:latest
+```
+
+#### Connettersi a MongoDB nel Container Docker
+
+```bash
+docker exec -it my-mongodb mongo
+```
+
+#### Creare Database
+
+```bash
+use myDatabase
+```
+
+#### Creare collezioni
+
+```bash
+db.createCollectio("myCollection")
+```
+
+### Windows
+
+```bash
+docker run -d -p 27017:27017 --name my-mongodb -v C:\path\to\mongo-data:/data/db mongo:latest
+```
+
+## Mongoose e CORS
+
+Per proseguire ad utilizzare mongoDB nel progetto bisogna installare nella route del progetto `mongoose` e `cors`.
+Mongoose è il pacchetto che ci permette di lavorare direttamente con mongoDB. Mongoose ci da una serie di funzionalità aggiuntive e di base ci fa da interfaccia, ci fa da livello tra mongodb e node.
+CORS ci permette di gestire le chiamate cross-origin.
+
+```bash
+npm install mongoose cors
+```
+
+Eseguita l'installazione dei pachetti bisgona importarli nel file `index.js`.
+
+```bash
+import mongoose from "mongoose";
+import cors from "cors";
+```
+
+Importato **CORS** bisogna chiamarlo una sola volta nel file `index.js`
+
+```bash
+app.use(cors());
+```
+
+Successivamente dichiariamo una constante per inserirgli **_URL del DB_** di mongoDB , in questo caso in locale. e dopo usiamo `mongoose` per connettere il progetto al db di mongo. Una volta connesso al DB, mandiamo il progetto in ascolto sulla porto dichiarata.
+
+```bash
+const CONNECT_URL = 'mognodb:localhost:27017/nameDB';
+mongoose.connect(CONNECT_URL);
+.then(() =>{
+    app.listen(PORT, () =>{
+        console.log(`server running on port ${PORT}`);
+    })
+})
+.catch(error => console.error(error));
+```
+
+## Creare un modello dati
+
+mongoDB acetta qualsiasi document, dati non strutturati, in confronto a MySQL che accetta dato strutturati.
+se non si sta attenti si potrebbero mandare dei dati che non sono consistenti in cui mongo non darebbe problemi, ma potrebbe essere un problema sopratutto per la parte del front-end, quindi `mongoose` tra le varie cose, da la possibilità di dare un minimo di consistenza ai dati.
+
+Per creare un model si crea una cartella per _best pratice_ chiamata models in cui all'interno ci saranno i vari model. Nel nostro caso all'interno della directory models creiamo un file `user.js` in cui all'interno importiamo `mongoose`
+
+```bash
+import mongoose from 'mongoose';
+```
+
+Dichiariamo uno schema all'interno di una constante usando mongoose e lo tipiziamo. In questo caso lo creaiamo per l'utente. il require non è obbligatorio, se non va inserito, di default sarà false. Dopo lo schema si può decidere se gestire automaticamente il `timestamps`, se anche questo non va inserito di default sarà false. Tuttavia potrà servire in certe circostanze.
+
+```bash
+const userSchema = mongoose.Schema({
+    nome:{
+        type: String,
+        require:true,
+    },
+    cognome:{
+        type: String,
+        require: true,
+    },
+    email:{
+        type : String,
+        require: true,
+    }
+}, {timestamps:true})
+```
+
+In fine chiameremo il model dal mongoose inserendo il nome del model e lo schema esportandolo
+
+```bash
+export const User = mongoose.model('User', userSchema)
+```
+
+## insert data sul DB
+
+Importiamo il model User nella directory `/controller/users.js`
+
+```bash
+import { User } from '../model/users.js';
+```
+
+Successivamente nell controller dichiariamo una constante implementandola di un nuovo modello riempiendolo dei dati che arrivano dal body, che in questo caso sono i dati dell'user. Successicamente gestiamo con il blocco **_try{}catch(){}_** La creazione restituirà un codice di stato 201. **_Mongoose, al momento della creazione del nuovo documento, utilizzerà il nome del modello per inserirlo nella collection, che avrà come nome, secondo mongoose, il plurale del modello._** In caso di errore, sarà restituito un codice di stato 409. La funzione sarà dichiarata come asincrona.
+
+```bash
+export const insertUser = async (req, res) => {
+  const reqBody = req.body;
+  const newUser = new User(reqBody)
+  try{
+     await newUser.save();
+     res.status(201).json(newUser)
+  }catch(error){
+    res.status(409).json({message:error.message})
+  }
+};
+```
+
+Inserendo il nuovo utente nel database su mongoDB nell'oggetto dei dati appartenente all'utente ci sarà un `ObjectId()` che è rapresentato da `_id` univoco assegnato da mongoDB. Ci sarà pure `createdAt` che rappresenta quando il documento è stato creato che resterà invariato e `updatedAt` che si aggiornerà ogni volta che verranno effettuate delle modifiche al documento. Questa funzionalità c'è perchè il timestamps nello schema è abilitato.
+
+## GetAll && GetByID
+
+Per ritornare tutti i dati dal database implementiamo nel controller asyncrono il metodo `find()` nel model `User()`. e successivamente ritorniamo il tutto con uno status code 200 in json. Nel caso in cui ci sarà un errore allora ritorniamo un _Not found_ quindi un codice di stato 404.
+
+```bash
+export const readAllUser = async (req.res) => {
+    try {
+        const users = await User.find();
+        res.status(200).json(users)
+    } catch (error) {
+        res.send(404).json({message: error.message})
+    }
+}
+```
+
+Per ritornare un semplice utente il passaggio è analogo, cambia che il metodo find questa volta utilizza `id` ritornato dal `req.params` e lo implementa nel metodo `findById()`.
+
+```bash
+export const readUserById = async (req, res) =>{
+    const { id } = req.params;
+    const user = await User.findById(id);
+    try {
+        res.status(200).json(user);
+    } catch(error){
+        res.send(404).json({message:error.message})
+    }
+}
+```
+
+Per inserire un controllo di conformità dell'id, si può implementare questa condizione.
+
+```bash
+if(!mongoose.Types.ObjectId.isValid(id)) return res.send(404).json({message:'id non conforme'});
+```
+
+> se vogliamo usare la nomenclatura dell'id di mongoDB cioè \_id, bisogna passare all'id, la nomenclatura dell'id di mongo quando lo dichiariamo.
+>
+> ```bash
+> const { id: _id } = req.params
+> ```
+>
+> Successivamente possiamo usare la nuova nomenclatura data per l'id.
+
+## Delete
+
+Per eliminare uno specifico dato, in questo caso un utene, bisogna utilizzare il metodo di moongoose `findByIdAndDelete()`.
+
+```bash
+export const deleteUser = async (req, res) => {
+    const { id } = req.params;
+    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({message: 'id non conforme'});
+
+    try{
+        await User.findByIdAndDelete(id);
+        res.status(200).json({message: "Utente eliminato con successo !"})
+    } catch(error){
+        res.status(404).json({mesage:error.message})
+    }
+}
+```
+
+## Update
+
+Per fare update dei data nel db dobbiamo utilizzare la funzionalità di mongoose `findByIdAndUpdate()`, passando due parametri, il primo è **id** e il secondo sono i data che andremo a modificare che arriveranno dal body `data`. Per fare in modo che rimandi sempre l'ogetto aggiornato ogni volta dopo un aggiornamento, possiamo implementare sulla funzionalità `finByIdAndUpdate()` l'oggetto **_`{new: true}`_**. 
+
+```bash
+export const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const data = { ...req.body }
+
+    if(!mongoose.Types.ObjectId.isValid(id)) return res.satuts(404).json({message: 'id non valido'});
+
+    try{
+        const user = await User.findByIdAndUpdate(id, data, {new:true});
+        res.status(200).json(user)
+    }catch(error){
+        res.send(404).json({message:error.message})
+    }
+}
+```
