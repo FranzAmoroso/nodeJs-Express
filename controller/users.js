@@ -1,55 +1,62 @@
-import { v4 as uuidv4 } from "uuid";
+import { User } from "../models/user.js";
+import mongoose from "mongoose";
 
-let users = [
-  {
-    nome: "Luca",
-    cognome: "Rossi",
-    email: "luca.rossi@gmail.com",
-    id: "15db1050-5d24-461f-9b94-39d43ed8c391",
-  },
-  {
-    nome: "Mario",
-    cognome: "Gialli",
-    email: "mario.gialli@gmail.com",
-    id: "856a9a53-1594-4e59-99a6-bbee9ba379f6",
-  },
-  {
-    nome: "Anna",
-    cognome: "Neri",
-    email: "anna.neri@gmail.com",
-    id: "58c573ad-e2bf-405f-b994-1f4eda7ada0d",
-  },
-];
+export const readAllUser = async (req, res) => {
+  const users = await User.find();
 
-export const readAllUser = (req, res) => res.send(users);
-
-export const createUser = (req, res) => {
-  const reqBody = req.body;
-  users.push({ ...reqBody, id: uuidv4() });
-  res.send(`Utente con email ${reqBody.email} è stato aggiunto con successo`);
+  try {
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
 };
 
-export const readUserByID = (req, res) => {
-  const { id } = req.params;
-  const user = users.find((user) => user.id == id);
-  res.send(user);
+export const insertUser = async (req, res) => {
+  const newUser = new User(req.body);
+
+  try {
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (error) {
+    res.status(409).json({ message: error.message });
+  }
 };
 
-export const updateUser = (req, res) => {
+export const readUserByID = async (req, res) => {
   const { id } = req.params;
-  const { nome, cognome, email } = req.body;
 
-  const user = users.find((user) => user.id == id);
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return res.status(404).json({ message: "id non conforme" });
 
-  if (nome) user.nome = nome;
-  if (cognome) user.cognome = cognome;
-  if (email) user.email = email;
-
-  res.send(`Utente con id ${id} è tato modificato con successo`);
+  try {
+    const user = await User.findById(id);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
 };
 
-export const deleteUser = (req, res) => {
+export const updateUser = async (req, res) => {
   const { id } = req.params;
-  users = users.filter((user) => user.id != id);
-  res.send(`Utente con id ${id} è stato eliminato con successo !`);
+  const data = { ...req.body };
+
+  if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({message: 'id non valido'});
+  try{
+    const user = await User.findByIdAndUpdate(id, data, {new: true});
+    res.status(200).json(user)
+  } catch(error) {
+    res.status(404).json({message:error.message})
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  const { id: _id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(_id))
+    return res.status(404).json({ message: "id non conforme" });
+  try {
+    await User.findByIdAndDelete(_id);
+    res.status(200).json({ message: "Utente eliminato con successo !" });
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
 };
