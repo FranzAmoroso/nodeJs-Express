@@ -6,3 +6,5 @@ node_modules
 
 # mongoDB composer
 data
+data/db
+data/db/*

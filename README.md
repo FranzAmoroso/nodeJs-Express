@@ -759,28 +759,29 @@ Per implementare il middleware, si crea una cartella **middlewares** dove possia
 ```javascript
 const authHeader = req.headers["authorization"];
 ```
+
 Successivamente prenderemo il token che è uguale a `authHeader` e `authHeader.split(' ')[1]`, andiamo dividere il token dal bearer perchè sarà utile passarlo al parametro `    Authorization: Bearer <token>` quando li dividiamo di conseguenza si crea un array dove bearer sara 0 e il token 1. successivamente si farà un controllo per vedere se il token è nullo p se è corretto. Se il token sarà corretto si usera la funzionalità `next()` per passare al prossimo comando.
 
 ```javascript
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = 'wirut983hrgHJDHIUY894hjseyFGJd89'
+const JWT_SECRET = "wirut983hrgHJDHIUY894hjseyFGJd89";
 
-export const authenticateToken = (req,res,next) => {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1];
+export const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
-    if(token == null) return res.sendStatus(401)
+  if (token == null) return res.sendStatus(401);
 
-    jwt.verify(token, JWT_SECRET, (error, user) => {
-        console.log(error)
-        if(error) return res.sendStatus(403);
+  jwt.verify(token, JWT_SECRET, (error, user) => {
+    console.log(error);
+    if (error) return res.sendStatus(403);
 
-        req.user = user
+    req.user = user;
 
-        next()
-    })
-}
+    next();
+  });
+};
 ```
 
 Se vogliamo aggiungere la verifica del token a tutte le sottoroute di user, basta andare nella route principale ed inserirla è questo sara verificato ogni volta che l'utente navigherà nelle sottoroute.
@@ -800,13 +801,14 @@ JWT_SECRET = 'wirut983hrgHJDHIUY894hjseyFGJd89'
 MONGODB = "nodeJSTestAPI"
 CONNECTION_URL = "mongodb://localhost:27017/nodeJSTestAPI"
 PORT = 3000
-``` 
+```
+
 nel file di **index.js** si importa `dotnet` si dichiara `dotnet.config()` e si utilizza la variabile di sistema per richiamare le variabili d'ambiente `process.env.`
 
 ```javascript
 import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
@@ -814,8 +816,22 @@ mongoose
   .connect(process.env.CONNECTION_URL)
   .then(() => {
     app.listen(PORT, () => {
-        console.log(`Server rinning on port: ${PORT}`);
-      });
+      console.log(`Server rinning on port: ${PORT}`);
+    });
   })
   .catch((error) => console.error(error));
 ```
+
+Come il file **index.js**, faremo anche nel file di **controller/auth.js** e nel file **middleware/auth.js** con _JWT_SECRET_.
+
+# deploy
+
+Per distribuire l'app nel server online bisogna inserire l'url del database online all'interno della variabile d'ambiente `CONNECT_URL`, successivamente
+
+> Se si distribuisce sul server heroku
+>
+> creare un file **Procfile** ed inserire
+>
+> ```bash
+> web: npm start
+> ```
