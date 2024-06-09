@@ -14,5 +14,7 @@ services:
     image: mongo:4.4
     ports:
       - "27017:27017"
+    environment:
+       MONGO_INITDB_DATABASE: nodeJSTestAPI
     volumes:
       - ./data/db:/data/db
