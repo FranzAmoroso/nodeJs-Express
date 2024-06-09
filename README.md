@@ -80,21 +80,21 @@ nel file **index.js** importiamo express usando una sintassi. Per importare Expr
 
 Nuova sintassi.
 
-```bash
+```javascript
 import express form 'express';
 ```
 
 Vecchia sintassi.
 
-```bash
-const express = require('express');
+```javascript
+const express = require("express");
 ```
 
 ### Configurazione
 
 Per utilizzare la sistassi che importa express come modulo, nel file **package.json** implementiamo sotto `"main":"index.js"`
 
-```bash
+```json
 "type":"module"
 ```
 
@@ -102,7 +102,7 @@ Per utilizzare la sistassi che importa express come modulo, nel file **package.j
 
 Nel file di **index.js** dichiriamo una constante e gli implementiamo la funzione `express()`
 
-```bash
+```javascript
 const app = express();
 ```
 
@@ -112,14 +112,16 @@ Tutte le funzionalità di express le andremo ad agganciare alla constante a cui 
 
 dichiariamo una constante con la porta del server in ascolto che varia dal tipo di configurazione del server fatta.
 
-```bash
-const PORT = 3000
+```javascript
+const PORT = 3000;
 ```
 
 per mettere in ascolto express sulla porta del server e ascoltare le chiamate in arrivo, bisogna richiamare la funzionalità di express `listen` metterlo in ascolto nella porta del server online e richiamare una callback con le istruzioni.
 
-```bash
-app.listen(PORT, ()=>{ console.log(`Server running on port: ${PORT}`); })
+```javascript
+app.listen(PORT, () => {
+  console.log(`Server running on port: ${PORT}`);
+});
 ```
 
 ### endpoint
@@ -134,40 +136,40 @@ la **req** può comprendere una richiesta di dati o altro.
 
 la **res** può comprendere la risposta che sarà visualizzata al front-end. Per mandare una risposta al front end si utilizza la funzionalità di express **_send_**.
 
-```bash
-app.get('/',(req,res) =>  res.send("Benvenuto nella homepage"))
+```javascript
+app.get("/", (req, res) => res.send("Benvenuto nella homepage"));
 ```
 
 #### Gestire le routers
 
 Per sistemare le routes e solito ottimizzare la struttura organizzandole per argomento all'interno della cartella **routes**. Un argomento che si può trattare sono gli utenti, quindi i rout degli utenti saranno trattati all'interno del file **users.js**. nel file di **users.js** sarà necessario importare express utilizzando una delle due sintassi e dichiarare la costante implementando la funzionalità di express `Router()`.
 
-```bash
-const router = express.Router()
+```javascript
+const router = express.Router();
 ```
 
 Impostiamo la gestione del router con la funzionalità **GET**.
 
-```bash
-router.get('/', (req,res) => res.send("Tutti gli utenti"))
+```javascript
+router.get("/", (req, res) => res.send("Tutti gli utenti"));
 ```
 
 In fine esportiamo la constante router
 
-```bash
-export default router
+```javascript
+export default router;
 ```
 
 Nel file **index.js** importiamo la definizione data nel file di **user.js**.
 
-```bash
-import usersRoutes from './routes/users.js';
+```javascript
+import usersRoutes from "./routes/users.js";
 ```
 
 Per gestire il router del file **user.js** si utilizza la funzionalità di express `use()`.
 
-```bash
-app.use('/users', usersRoutes);
+```javascript
+app.use("/users", usersRoutes);
 ```
 
 > lavorando in locale, riavviando node semplicemente solo salvando un file o aggiornando il codice. i dati inseriti con postman o altri fonti non saranno più in memoria. Questo non vale per i dati inseriti o presi nel **database**.
@@ -176,30 +178,30 @@ app.use('/users', usersRoutes);
 
 per chiamare un dato con un id univoco usando il metodo **GET** si utilizza il parametro `:id`. I due punti **_":"_** sta ad indicare che stiamo chiamando un paramentro dinamico. Per richiamare il parametro all'interno della chiamata **GET** si utilizza `params`. dichiarando una costante con un destructuring del parametro `id`, possiamo implementare l'oggetto `req.params`. quindi `const { id } = req.params`, stessa dicitura di `const id = req.params.id`.
 
-```bash
-router.get('/:id', (req, res) => {
-    const { id } = req.params
-    res.send(id);
-})
+```javascript
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+  res.send(id);
+});
 ```
 
 > Per ricevere più parametri dall'oggetto JSON che arriva dalla richiesta possiamo >implementare i parametri dinamici nell'API e fare un destructuring dei parametri dal `req.>params`.
 >
-> ```bash
-> router.get('/:id/:nome', (req, res) => {
->    const { id, nome } = req.params
->    res.send(`Received ID: ${id} and Name: ${nome}`);
-> })
+> ```javascript
+> router.get("/:id/:nome", (req, res) => {
+>   const { id, nome } = req.params;
+>   res.send(`Received ID: ${id} and Name: ${nome}`);
+> });
 > ```
 
 Per ricercare i dati dell'utente con l'id passato nei parametri possiamo implementera una funzionalità di javascript `find()` e cercare nell'oggetto **users** il corrispontende **id** che è **_==_** all'id che è passato nei parametri.
 
-```bash
-router.get('/:id', (req, res) =>{
-    const { id } = req.params;
-    const userFinded = users.find((user) => user.id == id);
-    res.send(userFinded)
-})
+```javascript
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+  const userFinded = users.find((user) => user.id == id);
+  res.send(userFinded);
+});
 ```
 
 ### `POST`
@@ -211,20 +213,20 @@ Uno degli utilizzi che si può fare con express utilizzando il metodo **POST**,
 >
 > per usare un identificatore univoco possiamo utilizzare uuid che è utilizzato per generare identificatori che sono unici. [Documentazione UUID](https://www.npmjs.com/package/uuid). Creare una constante e importare la funzionalità di uuid all'interno della richiesta post, `const id = uuidv4()` e associarlo ai dati che arrivano dalla richiesta tramite lo spread operator `const userWithID = { ...reqBody, id:id }`.
 
-```bash
-router.post('/',(req,res) => {
-    const reqBody = req.body
-    const id = uuidv4();
-    const userWithID = { ...reqBody,id:id }
-    users.push(userWithID)
-    res.send(`L'utente con l'email ${reqBody.email} è stato aggiunto`)
-    })
+```javascript
+router.post("/", (req, res) => {
+  const reqBody = req.body;
+  const id = uuidv4();
+  const userWithID = { ...reqBody, id: id };
+  users.push(userWithID);
+  res.send(`L'utente con l'email ${reqBody.email} è stato aggiunto`);
+});
 ```
 
 Nel file **index.js** si dovrà usare il middleware per gestire la richiesta `router.post()` che si fa nel file **users.js**.
 
-```bash
-app.use(express.json())
+```javascript
+app.use(express.json());
 ```
 
 > Questo middleware consente di analizzare i dati JSON inviati tramite richieste HTTP e li converte in oggetti JavaScript, rendendoli disponibili nell'oggetto req.body.
@@ -233,30 +235,30 @@ app.use(express.json())
 
 Si può utilizzare il metodo **DELETE** con express quando si ha la necessita di eliminare un dato specifico, indicizzato dal parametro che passa tramite l'url API. Si può intervenire usando il metodo `filter` di javascript per creare un nuovo array di oggetti assegnando lo stesso nome dell'array di oggetti precedente, passando tutti i parametri, tranne quello indicizzato che arriva dalla richiesta.
 
-```bash
-router.delete('/:id', (req, res) =>{
-    const { id } = req.params;
-    users = users.filter((user) => user.id != id);
-    res.send(`Utente con id ${id} è stato eliminato con successo !`)
-})
+```javascript
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+  users = users.filter((user) => user.id != id);
+  res.send(`Utente con id ${id} è stato eliminato con successo !`);
+});
 ```
 
 > Quando si effettuano modifiche con delete o update all'oggetto dentro l'array, se l'oggetto è dichiarato nel codice, è importante dichiararlo come una variabile `let` e non come una constante `const` perchè potrebbe portare problemi o errori.
 >
-> ```bash
+> ```javascript
 > let users = [
 >   {
->        "nome": "Luca",
->        "cognome": "Rossi",
->        "email": "luca.rossi@gmail.com",
->        "id": "3637aed6-ea84-480c-b07e-faac4c4784d1"
->    },
->    {
->        "nome": "Luca",
->        "cognome": "Rossi",
->        "email": "luca.rossi@gmail.com",
->        "id": "3637aed6-ea84-480c-b07e-faac4c4784d1"
->    }
+>     nome: "Luca",
+>     cognome: "Rossi",
+>     email: "luca.rossi@gmail.com",
+>     id: "3637aed6-ea84-480c-b07e-faac4c4784d1",
+>   },
+>   {
+>     nome: "Luca",
+>     cognome: "Rossi",
+>     email: "luca.rossi@gmail.com",
+>     id: "3637aed6-ea84-480c-b07e-faac4c4784d1",
+>   },
 > ];
 > ```
 
@@ -264,7 +266,7 @@ router.delete('/:id', (req, res) =>{
 
 Il metodo **PATCH** con express permette di sovrascrivere il singolo dato. Viene comunemente utilizzato per modificare i dati presi dal locale o dal database. Si passa il parametro `id` dall'url API, ma in questo caso si mandano i dati da modificare prendendoli dalla decostruzione del `req.body`, facendo una verifica se questi esistono.
 
-```bash
+```javascript
 router.patch("/:id", (req, res) => {
   const { id } = req.params;
   const { nome, cognome, email } = req.body;
@@ -413,20 +415,20 @@ npm install mongoose cors
 
 Eseguita l'installazione dei pachetti bisgona importarli nel file `index.js`.
 
-```bash
+```javascript
 import mongoose from "mongoose";
 import cors from "cors";
 ```
 
 Importato **CORS** bisogna chiamarlo una sola volta nel file `index.js`
 
-```bash
+```javascript
 app.use(cors());
 ```
 
 Successivamente dichiariamo una constante per inserirgli **_URL del DB_** di mongoDB , in questo caso in locale. e dopo usiamo `mongoose` per connettere il progetto al db di mongo. Una volta connesso al DB, mandiamo il progetto in ascolto sulla porto dichiarata.
 
-```bash
+```javascript
 const CONNECT_URL = 'mognodb:localhost:27017/nameDB';
 mongoose.connect(CONNECT_URL);
 .then(() =>{
@@ -444,54 +446,57 @@ se non si sta attenti si potrebbero mandare dei dati che non sono consistenti in
 
 Per creare un model si crea una cartella per _best pratice_ chiamata models in cui all'interno ci saranno i vari model. Nel nostro caso all'interno della directory models creiamo un file `user.js` in cui all'interno importiamo `mongoose`
 
-```bash
-import mongoose from 'mongoose';
+```javascript
+import mongoose from "mongoose";
 ```
 
 Dichiariamo uno schema all'interno di una constante usando mongoose e lo tipiziamo. In questo caso lo creaiamo per l'utente. il require non è obbligatorio, se non va inserito, di default sarà false. Dopo lo schema si può decidere se gestire automaticamente il `timestamps`, se anche questo non va inserito di default sarà false. Tuttavia potrà servire in certe circostanze.
 
-```bash
-const userSchema = mongoose.Schema({
-    nome:{
-        type: String,
-        require:true,
+```javascript
+const userSchema = mongoose.Schema(
+  {
+    nome: {
+      type: String,
+      require: true,
     },
-    cognome:{
-        type: String,
-        require: true,
+    cognome: {
+      type: String,
+      require: true,
     },
-    email:{
-        type : String,
-        require: true,
-    }
-}, {timestamps:true})
+    email: {
+      type: String,
+      require: true,
+    },
+  },
+  { timestamps: true }
+);
 ```
 
 In fine chiameremo il model dal mongoose inserendo il nome del model e lo schema esportandolo
 
-```bash
-export const User = mongoose.model('User', userSchema)
+```javascript
+export const User = mongoose.model("User", userSchema);
 ```
 
 ## insert data sul DB
 
 Importiamo il model User nella directory `/controller/users.js`
 
-```bash
-import { User } from '../model/users.js';
+```javascript
+import { User } from "../model/users.js";
 ```
 
 Successivamente nell controller dichiariamo una constante implementandola di un nuovo modello riempiendolo dei dati che arrivano dal body, che in questo caso sono i dati dell'user. Successicamente gestiamo con il blocco **_try{}catch(){}_** La creazione restituirà un codice di stato 201. **_Mongoose, al momento della creazione del nuovo documento, utilizzerà il nome del modello per inserirlo nella collection, che avrà come nome, secondo mongoose, il plurale del modello._** In caso di errore, sarà restituito un codice di stato 409. La funzione sarà dichiarata come asincrona.
 
-```bash
+```javascript
 export const insertUser = async (req, res) => {
   const reqBody = req.body;
-  const newUser = new User(reqBody)
-  try{
-     await newUser.save();
-     res.status(201).json(newUser)
-  }catch(error){
-    res.status(409).json({message:error.message})
+  const newUser = new User(reqBody);
+  try {
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (error) {
+    res.status(409).json({ message: error.message });
   }
 };
 ```
@@ -502,7 +507,7 @@ Inserendo il nuovo utente nel database su mongoDB nell'oggetto dei dati apparten
 
 Per ritornare tutti i dati dal database implementiamo nel controller asyncrono il metodo `find()` nel model `User()`. e successivamente ritorniamo il tutto con uno status code 200 in json. Nel caso in cui ci sarà un errore allora ritorniamo un _Not found_ quindi un codice di stato 404.
 
-```bash
+```javascript
 export const readAllUser = async (req.res) => {
     try {
         const users = await User.find();
@@ -515,28 +520,29 @@ export const readAllUser = async (req.res) => {
 
 Per ritornare un semplice utente il passaggio è analogo, cambia che il metodo find questa volta utilizza `id` ritornato dal `req.params` e lo implementa nel metodo `findById()`.
 
-```bash
-export const readUserById = async (req, res) =>{
-    const { id } = req.params;
-    const user = await User.findById(id);
-    try {
-        res.status(200).json(user);
-    } catch(error){
-        res.send(404).json({message:error.message})
-    }
-}
+```javascript
+export const readUserById = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  try {
+    res.status(200).json(user);
+  } catch (error) {
+    res.send(404).json({ message: error.message });
+  }
+};
 ```
 
 Per inserire un controllo di conformità dell'id, si può implementare questa condizione.
 
-```bash
-if(!mongoose.Types.ObjectId.isValid(id)) return res.send(404).json({message:'id non conforme'});
+```javascript
+if (!mongoose.Types.ObjectId.isValid(id))
+  return res.send(404).json({ message: "id non conforme" });
 ```
 
 > se vogliamo usare la nomenclatura dell'id di mongoDB cioè \_id, bisogna passare all'id, la nomenclatura dell'id di mongo quando lo dichiariamo.
 >
-> ```bash
-> const { id: _id } = req.params
+> ```javascript
+> const { id: _id } = req.params;
 > ```
 >
 > Successivamente possiamo usare la nuova nomenclatura data per l'id.
@@ -545,36 +551,271 @@ if(!mongoose.Types.ObjectId.isValid(id)) return res.send(404).json({message:'id 
 
 Per eliminare uno specifico dato, in questo caso un utene, bisogna utilizzare il metodo di moongoose `findByIdAndDelete()`.
 
-```bash
+```javascript
 export const deleteUser = async (req, res) => {
-    const { id } = req.params;
-    if(!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({message: 'id non conforme'});
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return res.status(404).json({ message: "id non conforme" });
 
-    try{
-        await User.findByIdAndDelete(id);
-        res.status(200).json({message: "Utente eliminato con successo !"})
-    } catch(error){
-        res.status(404).json({mesage:error.message})
-    }
-}
+  try {
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ message: "Utente eliminato con successo !" });
+  } catch (error) {
+    res.status(404).json({ mesage: error.message });
+  }
+};
 ```
 
 ## Update
 
-Per fare update dei data nel db dobbiamo utilizzare la funzionalità di mongoose `findByIdAndUpdate()`, passando due parametri, il primo è **id** e il secondo sono i data che andremo a modificare che arriveranno dal body `data`. Per fare in modo che rimandi sempre l'ogetto aggiornato ogni volta dopo un aggiornamento, possiamo implementare sulla funzionalità `finByIdAndUpdate()` l'oggetto **_`{new: true}`_**. 
+Per fare update dei data nel db dobbiamo utilizzare la funzionalità di mongoose `findByIdAndUpdate()`, passando due parametri, il primo è **id** e il secondo sono i data che andremo a modificare che arriveranno dal body `data`. Per fare in modo che rimandi sempre l'ogetto aggiornato ogni volta dopo un aggiornamento, possiamo implementare sulla funzionalità `finByIdAndUpdate()` l'oggetto **_`{new: true}`_**.
 
-```bash
+```javascript
 export const updateUser = async (req, res) => {
-    const { id } = req.params;
-    const data = { ...req.body }
+  const { id } = req.params;
+  const data = { ...req.body };
 
-    if(!mongoose.Types.ObjectId.isValid(id)) return res.satuts(404).json({message: 'id non valido'});
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return res.satuts(404).json({ message: "id non valido" });
 
-    try{
-        const user = await User.findByIdAndUpdate(id, data, {new:true});
-        res.status(200).json(user)
-    }catch(error){
-        res.send(404).json({message:error.message})
+  try {
+    const user = await User.findByIdAndUpdate(id, data, { new: true });
+    res.status(200).json(user);
+  } catch (error) {
+    res.send(404).json({ message: error.message });
+  }
+};
+```
+
+# Autenticazione
+
+## Registraazione
+
+nel file all'interno del modulo definiamo o aggiorniamo lo schema di mongoose aggiungendo o modificando il modul
+
+```javascript
+import mongoose from "mongoose";
+
+export const userSchema = mongoose.Schema(
+  {
+    username: {
+      type: String,
+      require: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      require: true,
+    },
+  },
+  { timestamps: true }
+);
+
+export const User = mongoose.modul("User", userSchema);
+```
+
+la definizione `unique:true` sta per rendere univoco il dato.
+
+Creiamo il file **auth.js** (authorization) all'interno di controller e routes, in questo file si gestirà la registrazione utente, login ed eventuali altre situazioni come JWT.
+all'interno del file **auth.js** dentro la cartella router, si gestiranno i route , quindi si dovrà importare express, definire una constante e implementarla del metodo `express.Route()` e successivamente richiamare i metodi all'interno delle route dal file **auth.js** all'interno di controller
+
+```javascript
+import express from "express";
+import { register } from "../controller/auth.js";
+
+const router = express.Router();
+
+router.get("/register", register);
+
+export default router;
+```
+
+Aggiungiamo la definizione di register con la richiesta e la risposta all'interno del file **auth.js** nella cartella dei controller facendo in modo di fare le verifiche necessarie ma soprattuto se è presente una password bisogna criptarla anche se successivamente la inseriamo dentro il databse. Installando il pkg **bycriptjs** con il comando `npm i bcriptjs`. per criptare un dato con la libreria **bcryptjs** bisogna richiamare la funzionalità `hash()` con all'interno il dato da criptare e il parametro che può essere una parola da mischiare con il dato da criptare o un numero che è il numero d iterazione per criptare il dato. Consigliato inserire un numero da 10 a 15.
+
+```javascript
+const passwordHashed = await bcrypt.hash(password, 10);
+```
+
+questo genererà una stringa incomprensibile, è possibile decriptarla ma è altamente improbabile.
+
+successivamente creiamo un nuovo model User, e gli inseriamo i parametri presi dal body, definiamo il parametro password con la password criptata e successivamente salviamo il nuovo utente
+
+```javascript
+export const register = async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || typeof username != "string") {
+    return res.json({ status: "error", message: "Username non valido" });
+  }
+
+  if (!password || typeof password != "string") {
+    return res.json({ status: "error", message: "Password non valida" });
+  }
+
+  if (password.length < 8) {
+    return res.json({
+      status: "error",
+      message: "Password minimo di 8 caratteri",
+    });
+  }
+
+  const passwordHashed = await bcrypt.hash(password, 10);
+  const user = new User({ username: username, password: passwordHashed });
+
+  try {
+    await user.save();
+    res.status(201).json({ status: "ok" });
+  } catch (error) {
+    res.status(409).json({ status: "error", message: error.message });
+  }
+};
+```
+
+## Login
+
+Nel file di `auth.js` all'interno della cartella **routes** si dovrà importare il callback login e creare una nuova route.
+
+```javascript
+import express from "express";
+import { register, login } from "../controllers/auth.js";
+
+const router = express.Route();
+
+router.post("/register", register);
+router.post("/login", login);
+
+export default router;
+```
+
+Nel file `auth.js` all'interno della cartella **controller** definiamo login esportandola implementandogli una richiesta e una risposta, al quale prenderà i parametri _username_ e _password_ dal body con una richiesta. Con la funzionalità `findOne()` cercheremo il parametro _username_ arrivato dal body nel modul, in questo caso _User_.
+
+```javascript
+const user = await User.findOne(username);
+```
+
+Implementiamo un controllo se il dato arrivato che stiamo cercando esiste nel modul.
+
+```javascript
+if (!username)
+  return res
+    .status(404)
+    .json({ status: "error", message: "Utente o password errata" });
+```
+
+Se il dato esiste allora si decripta la password con la funzionalità di _bcrypt_ `compare()` inserendo come primo parametro la password presa dal req.body e la password da decriptare.
+
+```javascript
+await bcrypt.compare(passsword, user.password);
+```
+
+Una volta decriptata servirà generare un token, si potrà utilizzare il pkg **[JWT](https://jwt.io/libraries)**. Si drovà importare ed utilizzare la funzionalità `sign()`, all'interno verrà inserito il payload, dove non si dovranno inserire i dati sensibili poichè facilmente decriptabile. il secret che è una chiave per arrivare al payload del token che si dovrà dichiarare, di default si definisce all'interno del file **.env**, tuttavia si può definire dentro il file **controller/auth.js**.
+
+```javascript
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = "wirut983hrgHJDHIUY894hjseyFGJd89";
+
+const jwt = jwt.sign(
+  {
+    id: user._id,
+    username: user.username,
+  },
+  JWT_SECRET
+);
+```
+
+> Se il toket sarà dichiarato nel file **.env** si dovrà inserire `parse.env.` in testa al SECRET del token.
+>
+> ```javascript
+> parse.env.JWT_SECRET;
+> ```
+
+````
+```javascript
+export cont login = (req,res) => {
+    const {username, password} = req.body;
+
+    const user = User.findOne(username);
+
+    if(!username) return res.status(404).json({status: 'error', message: 'Utente o password errata'})
+
+    if(await bcrypt.compare(password, user.password)){
+
     }
 }
+````
+
+## JWT token middleware
+
+Il JWT token middleware è intesa come una verifica che si fa in mezzo ad una richiesta ed una risposta, come in questo caso possiamo andare a implementare nelle route del file **routes/users.js**
+
+```javascript
+router.get("/", authenticateToken, readAllUsers);
+```
+
+in questo caso `verificatoken` è un JWT token middleware.
+
+Per implementare il middleware, si crea una cartella **middlewares** dove possiamo gestire più JWT token middlewares. In questo caso creaimao la cartella **auth.js**. importiamo il JWT è il token secret, ed esportiamo il callback **authenticateToken** con tre parametri, `req`, `res` e `next`. Usiamo il terzo parametro `next`, perchè **authenticateToken** è un middleware, quindi per potergli dire di che la verifica è passata e quindi può continuare la lettura. all'interno del callback prendiamo delle informazioni aggiuntive dallla riciesta dall'headers
+
+```javascript
+const authHeader = req.headers["authorization"];
+```
+Successivamente prenderemo il token che è uguale a `authHeader` e `authHeader.split(' ')[1]`, andiamo dividere il token dal bearer perchè sarà utile passarlo al parametro `    Authorization: Bearer <token>` quando li dividiamo di conseguenza si crea un array dove bearer sara 0 e il token 1. successivamente si farà un controllo per vedere se il token è nullo p se è corretto. Se il token sarà corretto si usera la funzionalità `next()` per passare al prossimo comando.
+
+```javascript
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = 'wirut983hrgHJDHIUY894hjseyFGJd89'
+
+export const authenticateToken = (req,res,next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if(token == null) return res.sendStatus(401)
+
+    jwt.verify(token, JWT_SECRET, (error, user) => {
+        console.log(error)
+        if(error) return res.sendStatus(403);
+
+        req.user = user
+
+        next()
+    })
+}
+```
+
+Se vogliamo aggiungere la verifica del token a tutte le sottoroute di user, basta andare nella route principale ed inserirla è questo sara verificato ogni volta che l'utente navigherà nelle sottoroute.
+
+```javascript
+app.use("/users", authenticateToken, usersRoutes);
+```
+
+## Mettere online gli API
+
+Per implementare sicurezza oltre ad altri metodi e librerie possiamo implementare il pkg **sanitize**, utilizzando mongo, andremo a prendere [mongo-sanitize](https://www.npmjs.com/package/mongo-sanitize). Per express dedicato, si potra usare [express-mongo-sanitize](https://www.npmjs.com/package/express-mongo-sanitize).
+
+Implementeremo il [dotenv](https://www.npmjs.com/package/dotenv). cioè un file dove inseriremo le variabili d'ambiente per rendere le variabili più sicure qual'ora nel caso in cui vogliamo inserire l'applicazione online o aplicazioni di versioning come github, il file **.env** non sarà visualizzato. Creiamo il file **.env**, gli inseriamo le variabili d'ambiante.
+
+```bash
+JWT_SECRET = 'wirut983hrgHJDHIUY894hjseyFGJd89'
+MONGODB = "nodeJSTestAPI"
+CONNECTION_URL = "mongodb://localhost:27017/nodeJSTestAPI"
+PORT = 3000
+``` 
+nel file di **index.js** si importa `dotnet` si dichiara `dotnet.config()` e si utilizza la variabile di sistema per richiamare le variabili d'ambiente `process.env.`
+
+```javascript
+import dotenv from "dotenv";
+
+dotenv.config()
+
+const PORT = process.env.PORT || 3000;
+
+mongoose
+  .connect(process.env.CONNECTION_URL)
+  .then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server rinning on port: ${PORT}`);
+      });
+  })
+  .catch((error) => console.error(error));
 ```
