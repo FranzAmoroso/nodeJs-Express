@@ -1,20 +1,22 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-// import dotenv from "dotenv";
+import dotenv from "dotenv";
 
 import usersRoutes from "./routes/users.js";
+import authRoutes from "./routes/auth.js";
+import {authenticateToken} from './middlewares/auth.js';
 
 const app = express();
-// dotenv.config()
+dotenv.config()
 
 const PORT = process.env.PORT || 3000;
-const CONNECTION_URL = 'mongodb://mongodb:27017/nodeJSTestAPI'
 
 app.use(express.json());
 app.use(cors());
 
-app.use("/users", usersRoutes);
+app.use("/users", authenticateToken, usersRoutes);
+app.use("/auth" , authRoutes)
 
 app.get("/", (req, res) => {
   console.log("Chiamata alla homepage");
@@ -23,7 +25,7 @@ app.get("/", (req, res) => {
 });
 
 mongoose
-  .connect(CONNECTION_URL)
+  .connect(process.env.CONNECTION_URL)
   .then(() => {
     app.listen(PORT, () => {
         console.log(`Server rinning on port: ${PORT}`);

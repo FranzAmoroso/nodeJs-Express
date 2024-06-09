@@ -7,6 +7,7 @@ import {
   deleteUser,
 } from "../controller/users.js";
 
+
 const router = express.Router();
 
 router.get("/", readAllUser);
