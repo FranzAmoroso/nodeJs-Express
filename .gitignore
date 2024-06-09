@@ -1,1 +1,8 @@
+# npm pkg
 node_modules
+
+# envarioment
+.env
+
+# mongoDB composer
+data
