@@ -1,10 +1,9 @@
-# npm pkg
-node_modules
+# Ignora la directory node_modules
+node_modules/
 
-# envarioment
+# Ignora file di environment
 .env
 
-# mongoDB composer
-data
-data/db
-data/db/*
+# Ignora database MongoDB locali
+data/
+data/db/
